@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Don't forget to set system property
+-DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
+ to make all loggers asynchronous. -->
+
+<Configuration>
+    <Properties>
+        <Property name="name">myproject-log</Property>
+        <Property name="log-path">${sys:catalina.base}/logs</Property>
+        <!--
+            %d - date format
+            %-8.8p - Log level, 8 columns width with 8 chars
+            %t - Name of thread
+            %c - Name of the logger that published the logging event
+            %m or %msg - Log message
+            %n - Add new line
+
+            Fore more information on the pattern, please read http://logging.apache.org/log4j/2.0/manual/layouts.html#PatternLayout
+
+            Important note: Please avoid adding any location information to get better logging performance.
+            For more information http://logging.apache.org/log4j/2.0/manual/async.html#Location.
+        -->
+
+        <Property name="pattern">%d{yyyy-MM-dd HH:mm:ss.SSS} | sessionId=%X{sessionId} | correlationId=%X{correlationId} | %-8.8p| [%t] | %c{3} | %m%n</Property>
+    </Properties>
+    <Appenders>
+        <Console name="ConsoleAppender" target="SYSTEM_OUT">
+            <PatternLayout pattern="${pattern}"/>
+        </Console>
+        <RollingRandomAccessFile name="FileAppender" fileName="${log-path}/${name}.log"
+                                 filePattern="${log-path}/backup/${name}-%d{yyyy-MM-dd}-%i.log.gz"
+                                 immediateFlush="true" append="true"
+                                 ignoreExceptions="false">
+            <PatternLayout>
+                <Pattern>${pattern}</Pattern>
+            </PatternLayout>
+            <Policies>
+                <!-- Rotated everyday -->
+                <TimeBasedTriggeringPolicy/>
+                <!-- Or every 256 MB -->
+                <SizeBasedTriggeringPolicy size="256 MB"/>
+            </Policies>
+        </RollingRandomAccessFile>
+        <Failover name="FailOverAppender" primary="FileAppender">
+            <Failovers>
+                <AppenderRef ref="ConsoleAppender"/>
+            </Failovers>
+        </Failover>
+    </Appenders>
+    <Loggers>
+        <Root level="DEBUG" includeLocation="false">
+            <AppenderRef ref="ConsoleAppender"/>
+        </Root>
+    </Loggers>
+</Configuration>

@@ -1,0 +1,106 @@
+buildscript {
+    repositories {
+        maven {
+            url 'http://repo1.maven.org/maven2'
+        }
+        maven {
+            url 'http://repo.spring.io/plugins-release'
+        }
+    }
+
+    dependencies {
+    	// Required for Tomcat plugin, upon using this, we can see the project in ADD/REMOVE project section. 
+		classpath 'org.gradle.api.plugins:gradle-tomcat-plugin:1.2.4'
+		
+		//Excluding the logback-classic api to avoid class cast exception. 
+        configurations.all*.exclude module: "logback-classic"
+	 }
+}
+
+ext {
+    springVersion = "4.1.3.RELEASE"
+}
+//Common to All Projects
+
+subprojects {
+    apply plugin: 'java'
+    sourceCompatibility = 1.7
+    
+    repositories {
+        maven {
+            url 'http://repo1.maven.org/maven2'
+        }
+        maven {
+            url 'http://repo.spring.io/plugins-release'
+        }
+     	
+}
+    dependencies {
+	    testCompile(
+	                "junit:junit:4.11",
+	                "org.mockito:mockito-all:1.10.8",
+	                "org.easytesting:fest-assert-core:2.0M10",
+	                "org.springframework:spring-test:${springVersion}",
+	                "org.hamcrest:hamcrest-all:1.3"
+	   	)
+   	}
+}
+
+//API Project specific stuff
+project(':ProjAPI') {
+	 dependencies {
+		 
+ 	}
+}
+
+
+//Web Project specific stuff
+project(':ProjWEB') {
+    apply plugin: 'war'
+    apply plugin: 'eclipse'
+	apply plugin: 'tomcat'
+    apply plugin: 'eclipse-wtp'
+    
+
+    dependencies {
+    	// For compilation of ProjAPI
+        compile project(':ProjAPI')
+        
+        //Spring web mvc
+        compile 'org.springframework.boot:spring-boot-starter-web:1.1.4.RELEASE'
+        compile 'org.springframework:spring-webmvc:4.0.5.RELEASE'
+        compile 'org.springframework:spring-aspects:4.1.3.RELEASE'
+
+        compile 'com.datastax.cassandra:cassandra-driver-core:2.1.4'
+        compile 'com.fasterxml.jackson.core:jackson-annotations:2.4.4'
+
+        
+    }
+      tomcatRunWar {
+        contextPath = ''
+        httpPort = 8080
+        httpsPort = 8091
+        enableSSL = true
+        stopPort = 8191
+    }
+
+    war {
+        baseName = 'ProjWEB'
+    }
+
+    task serve(dependsOn: tomcatRunWar) << {}
+
+    test {
+        systemProperties 'property': 'value'
+    }
+
+    uploadArchives {
+        repositories {
+            flatDir {
+                dirs 'repos'
+            }
+        }
+    }
+    
+    
+  }

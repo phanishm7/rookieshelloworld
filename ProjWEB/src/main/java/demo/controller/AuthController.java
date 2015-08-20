@@ -31,7 +31,9 @@ public class AuthController {
         Session session = cluster.connect("demo");
 
         ResultSet results = session.execute("select * from xmbl_gfcd_acct where mbl_num_i='"+phone+"'");
-        System.err.println("1"); 
+        System.err.println("from10"); 
+         
+
         String enryptedDbPin ="";
 
         //get the encrypted pin

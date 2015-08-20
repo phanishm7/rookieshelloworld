@@ -32,7 +32,7 @@ public class AuthController {
 
         ResultSet results = session.execute("select * from xmbl_gfcd_acct where mbl_num_i='"+phone+"'");
 
-        System.err.println("m7");
+        System.err.println("m71");
 
         String enryptedDbPin ="";
 

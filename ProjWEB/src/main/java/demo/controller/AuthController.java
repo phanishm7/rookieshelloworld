@@ -31,6 +31,8 @@ public class AuthController {
         Session session = cluster.connect("demo");
 
         ResultSet results = session.execute("select * from xmbl_gfcd_acct where mbl_num_i='"+phone+"'");
+        System.err.println("Sahana"); 
+         
 
         System.err.println("m71");
 
